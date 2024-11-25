@@ -1,0 +1,5 @@
+# Logstash 기본 이미지 사용
+FROM docker.elastic.co/logstash/logstash:8.7.1
+
+# MySQL JDBC 드라이버를 컨테이너 내부에 복사
+COPY ./mysql-connector-java-8.0.29.jar /usr/share/logstash/logstash-core/lib/jars/mysql-connector-java-8.0.29.jar
