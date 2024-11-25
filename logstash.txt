@@ -1,0 +1,29 @@
+input {
+  file {
+    path => "/usr/share/logstash/ingest_data/*.csv" #specifying only csv files.
+    start_position => "beginning"  # 처음부터 파일을 읽음 (초기 실행 시에만)
+    sincedb_path => "/usr/share/logstash/data/sincedb"  # Logstash가 마지막 읽은 위치를 저장하는 파일
+    # exit_after_read => true # this tells logstash to exit after reading the file.  This is useful for running logstash as a "job". if you want logstash to continue to run and monitor for files, remove this line.
+    mode => "tail"
+    file_completed_action => "log" # this tells logstash to log to the file specified in file_completed_log_path once its done reading the input file.
+    file_completed_log_path => "/usr/share/logstash/ingest_data/logstash_completed.log"
+  }
+}
+
+filter {
+  if [message] and [message] != "" {
+    csv{
+      separator => ","
+      columns => ["id","Indicator ID","Name","Measure","Measure Info","Geo Type Name","Geo Join ID","Geo Place Name","Time Period","Start_Date","Data Value","Message"]
+    }  
+  }
+}
+
+output {
+  elasticsearch {
+    index => "test_index"
+    hosts => "${ELASTIC_HOSTS}"
+    document_id => "%{id}"
+  }
+  stdout { codec => rubydebug }
+}
